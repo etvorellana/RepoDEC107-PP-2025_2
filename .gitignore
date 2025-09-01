@@ -56,3 +56,5 @@ dkms.conf
 
 
 Exemplos_01/bin/*
+Exemplos_02/output/*
+.vscode
