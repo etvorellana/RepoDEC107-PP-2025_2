@@ -39,14 +39,13 @@ int main(int argc, char **argv){
             local_min = local_vector[i];
         }
     }
-    MPI_Reduce(&local_max, &global_max, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&local_min, &global_min, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_max, &global_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_min, &global_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
     if (rank == 0) {
         printf("Valor máximo: %f\n", global_max);
         printf("Valor mínimo: %f\n", global_min);
     } 
-    MPI_Bcast(&global_max, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&global_min, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
     for (int i = 0; i < local_n; i++) {
         local_vector[i] -= global_min; // Normaliza o subvetor
         local_vector[i] /= (global_max - global_min);

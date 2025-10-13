@@ -3,7 +3,8 @@
 #include <mpi.h>
 
 
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
     int rank, p;
     int n = 256; // Tamanho do vetor
     double local_max = 0.0, global_max = 0.0;
@@ -22,14 +23,10 @@ int main(int argc, char **argv){
         for (int i = 0; i < n; i++) {
             vector[i] = ((double)rand()/RAND_MAX) * 100.0 - 50.0; // Inicializa o vetor com valores de -50 a 50
         }
-        for(int i = 1; i < p; i++) {
-            MPI_Send(vector + i*local_n, local_n, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
-        }
-        local_vector = vector; // O processo 0 também trabalha com seu próprio segmento
-    }else{
-        local_vector = (double *)malloc(local_n * sizeof(double));
-        MPI_Recv(local_vector, local_n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    }
+    }    
+    local_vector = (double *)malloc(local_n * sizeof(double));
+    MPI_Scatter(vector, local_n, MPI_DOUBLE, local_vector, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
     local_max = local_vector[0];
     local_min = local_vector[0];
     for (int i = 1; i < local_n; i++) {
@@ -39,35 +36,31 @@ int main(int argc, char **argv){
             local_min = local_vector[i];
         }
     }
-    MPI_Reduce(&local_max, &global_max, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&local_min, &global_min, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_max, &global_max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_min, &global_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
     if (rank == 0) {
         printf("Valor máximo: %f\n", global_max);
         printf("Valor mínimo: %f\n", global_min);
     } 
-    MPI_Bcast(&global_max, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&global_min, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
     for (int i = 0; i < local_n; i++) {
         local_vector[i] -= global_min; // Normaliza o subvetor
         local_vector[i] /= (global_max - global_min);
         local_vector[i] *= 2.0;
         local_vector[i] -= 1.0;
     }
+
+    MPI_Gather(local_vector, local_n, MPI_DOUBLE, vector, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
     if (rank == 0) {
-        for(int i = 1; i < p; i++) {
-            MPI_Recv(vector + i*local_n, local_n, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
         printf("Vetor normalizado:\n");
         for (int i = 0; i < n; i++) {
             printf("%f ", vector[i]);
             if (i % 10 == 9) printf("\n");
         }
-        printf("\n");
-        free(vector);
-    } else {
-        MPI_Send(local_vector, local_n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
-        free(local_vector);
     }
+
+    free(local_vector);
 
     MPI_Finalize();
     return 0;

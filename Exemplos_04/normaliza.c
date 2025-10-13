@@ -4,7 +4,7 @@
 int main()
 {
     int n = 256; // Tamanho do vetor
-    double max = 0.0;
+    double max, min;
     double vector[256];
     srand(123456789);
     // Inicializa o vetor com valores de -50 a 50
@@ -13,17 +13,23 @@ int main()
     }
 
     // Encontra o valor máximo
-    max = vector[0];
+    max = min = vector[0];
     for (int i = 1; i < n; i++) {
         if (vector[i] > max) {
             max = vector[i];
+        }else if (vector[i] < min){
+            min = vector[i];
         }
     }
-    printf("Valor máximo: %f\n", max);
+    
+    printf("Valor máximo: %f \t Valor mínimo: %f\n", max, min);
 
     // Normaliza o vetor
     for (int i = 0; i < n; i++) {
-        vector[i] /= max;
+        vector[i] -= min;
+        vector[i] /= max - min;
+        vector[i] *= 2.0;
+        vector[i] -= 1.0;
     }
 
     // Imprime o vetor normalizado
@@ -36,3 +42,5 @@ int main()
 
     return 0;
 }
+
+
