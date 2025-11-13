@@ -26,6 +26,27 @@ int main()
 
     double alpha = 2.0, beta = 2.0;
 
+    printf("Matriz A:\n");
+
+    for (int i = 0; i < MSIZE; i++)
+    {
+        for (int j = 0; j < MSIZE; j++)
+            printf("%.1lf ", A[i * MSIZE + j]);
+    
+        printf("\n");
+    }
+
+    printf("Matriz B:\n");
+    for (int i = 0; i < MSIZE; i++)
+    {
+        for (int j = 0; j < MSIZE; j++)
+            printf("%.1lf ", B[i * MSIZE + j]);
+    
+        printf("\n");
+    }
+
+    printf("Matriz C antes da operacao:\n");
+
     for (int i = 0; i < MSIZE; i++)
     {
         for (int j = 0; j < MSIZE; j++)
@@ -46,6 +67,7 @@ int main()
         C[i*MSIZE + j] = alpha * cvalue + beta * C[i*MSIZE + j];
 
     }
+    printf("\nResultado da multiplicacao de matrizes:\n");
 
     for (int i = 0; i < MSIZE; i++)
     {

@@ -7,7 +7,7 @@
 
 __host__ int dgemmCUDA(double alpha, double* A, double* B, double beta, double* C);
 __global__ void k_dgemm(double alpha, double* A, double* B, double beta, double* C);
-void printMatrix(double *A, int n);
+__host__ void printMatrix(double *A, int n);
 
 int main(int argc, char **argv)
 {
@@ -31,13 +31,25 @@ int main(int argc, char **argv)
     }
     double alpha = 2.0, beta = 2.0;
 
+    printf("Matriz A:\n");
+
+    printMatrix(A, MSIZE);
+
+    printf("Matriz B:\n");
+
+    printMatrix(B, MSIZE);
+
+    printf("Matriz C antes da operacao:\n");
+
     printMatrix(C, MSIZE);
 
     // Calcular o GEMM
     dgemmCUDA(alpha, A, B, beta, C);
 
     // I/O para guardar os resultados
-    printf("________________________________________\n");
+
+    printf("Matriz C apos a operacao:\n");
+
     printMatrix(C, MSIZE);
 
     // Libera memória alocada
@@ -123,8 +135,7 @@ __global__ void k_dgemm(double alpha, double* A, double* B, double beta, double*
     C[i*MSIZE + j] = alpha * cValue + beta * C[i*MSIZE + j];
 }
 
-
-void printMatrix(double *A, int n)
+__host__ void printMatrix(double *A, int n)
 {
     int i, j;
     double *ptr;
