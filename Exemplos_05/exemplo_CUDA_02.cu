@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 
 #define MSIZE 8192
-#define BSIZE 8
+#define BSIZE 32
 
 __host__ int dgemmCUDA(double alpha, double* A, double* B, double beta, double* C);
 __global__ void k_dgemm(double alpha, double* A, double* B, double beta, double* C, int TILES);
